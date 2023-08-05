@@ -52,7 +52,7 @@ const CreateSection = () => {
       setResponse(generatedStory);
   
       setStory(generatedStory);
-      const saveResponse = await axios.post('http://localhost:5000/api/Auth/save_story', {
+      const saveResponse = await axios.post('http://localhost:5000/api/story/save_story', {
         story: generatedStory,
       });
   

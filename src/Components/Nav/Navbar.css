@@ -1,0 +1,128 @@
+/* 
+nav {
+    background-color: white;
+  
+  }
+  .nav-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+  }
+  ul {
+    display:  flex;
+   
+    list-style: none;
+  }
+  .nav-toggle {
+    font-size: 1.5rem;
+    color: var(--primary-500);
+    background: transparent;
+    border-color: transparent;
+    transition: var(--transition);
+    cursor: pointer;
+  }
+  .nav-toggle:hover {
+    color: var(--primary-700);
+    transform: rotate(90deg);
+  }
+  
+  .logo {
+    height: 40px;
+  }
+  .links a {
+    color: var(--grey-700);
+    font-size: 1rem;
+    text-transform: capitalize;
+    letter-spacing: var(--letterSpacing);
+    display: block;
+    text-decoration: none;
+    margin-right: 20px;
+    margin-top: 15px;
+   
+    transition: var(--transition);
+  } */
+  /* .links a:hover {
+    color: var(--primary-500);
+    
+  }
+  .links-container {
+    overflow: hidden;
+    transition: var(--transition);
+  } */
+
+  /* Navbar styles */
+.navbar {
+  background-color: white;
+}
+
+.nav-center {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+}
+
+.links {
+  display: flex;
+  list-style: none;
+}
+
+.nav-toggle {
+  font-size: 1.7rem;
+  color: var(--primary-500);
+  background: transparent;
+  border-color: transparent;
+  transition: var(--transition);
+  cursor: pointer;
+  
+}
+
+.nav-toggle:hover {
+  color: var(--primary-700);
+  transform: rotate(90deg);
+  margin-top: 0px !important;
+}
+
+.logo {
+  height: 40px;
+  margin-right: 30px;
+  
+}
+
+.links a {
+  color: var(--grey-700);
+  font-size: 1rem;
+  text-transform: capitalize;
+  letter-spacing: var(--letterSpacing);
+  text-decoration: none;
+  margin-right: 20px;
+  margin-top: 15px;
+  transition: var(--transition);
+}
+
+.links a:hover {
+  color: var(--primary-500);
+}
+
+.links-container {
+  overflow: hidden;
+  transition: var(--transition);
+}
+
+.social-icons {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.social-icons li {
+  padding: 1rem;
+}
+
+.social-icons a {
+  color: white;
+  text-decoration: none;
+  font-size: 1.5rem;
+}
