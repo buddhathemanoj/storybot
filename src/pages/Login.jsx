@@ -8,7 +8,7 @@ const Login = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios.post('http://localhost:5000/api/Auth/login', { email, password })
+    axios.post('http://localhost:5002/api/Auth/login', { email, password })
       .then((res) => {
         // Handle login success
         console.log(res.data);

@@ -14,7 +14,7 @@ const Register = () => {
   const [verificationResponse, setVerificationResponse] = useState('');
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios.post('http://localhost:5000/api/Auth/register', { name, email, password })
+    axios.post('http://localhost:5002/api/Auth/register', { name, email, password })
       .then((res) => {
         // Handle registration success
         console.log(res.data);
@@ -25,7 +25,7 @@ const Register = () => {
       });
   };
   const handleVerifyOTP = () => {
-    axios.post('http://localhost:5000/api/Auth/verifyotp', { email, otp })
+    axios.post('http://localhost:5002/api/Auth/verifyotp', { email, otp })
       .then((res) => {
         // Handle OTP verification response
         console.log(res.data);
