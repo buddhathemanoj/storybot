@@ -1,4 +1,4 @@
-import React, { useState,useCallback } from 'react';
+import React, { useState,useCallback ,useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Row, Col, Button, Dropdown, Menu, Input, Space, Upload } from 'antd';
 import { DeleteOutlined, PlusOutlined, UploadOutlined, DownOutlined, CopyOutlined } from '@ant-design/icons';
@@ -6,13 +6,23 @@ import axios from 'axios';
 
 const genres = ['Select Genre', 'Fantasy', 'Science Fiction', 'Romance', 'Mystery', 'Thriller', 'Adventure'];
 
+const screenplayStyle = {
+  marginTop: '20px',
+  border: '1px solid #ccc',
+  padding: '10px',
+  overflowY: 'auto', // Use 'auto' instead of 'scroll'
+  whiteSpace: 'pre-wrap',
+  wordWrap: 'break-word',
+};
 const CreateSection = () => {
   const [selectedGenre, setSelectedGenre] = useState('Select Genre');
   const [characters, setCharacters] = useState(['']);
+  const [characterRelation, setCharacterRelation] = useState('');
   const [fileList, setFileList] = useState([]);
   const [story, setStory] = useState(null);
   const [response, setResponse] = useState(null); // Add state for response handling
-
+  const [screenplay, setScreenplay] = useState(null);
+  const [isStoryGenerated, setIsStoryGenerated] = useState(false);
   const handleGenreSelect = ({ key }) => {
     setSelectedGenre(key);
   };
@@ -43,31 +53,63 @@ const CreateSection = () => {
       console.log(`Write a story in ${selectedGenre} with the character names as ${givenCharacters}`);
       
       
-      const response = await axios.post('http://127.0.0.1:5000/generate_story', {
+      const response = await axios.post('http://localhost:5000/generate_story', {
         genre: selectedGenre,
         character_name: givenCharacters,
+        character_relation: characterRelation, // Include character relation/synopsis in the request
       });
   
       const generatedStory = response.data.rough_drafts.map((item) => item.story);
       setResponse(generatedStory);
   
       setStory(generatedStory);
-      const saveResponse = await axios.post('http://localhost:5000/api/story/save_story', {
+
+      const saveResponse = await axios.post('http://localhost:5002/api/story/save_story', {
         story: generatedStory,
       });
   
       console.log('Story saved in MongoDB:', saveResponse.data.message);
+      setIsStoryGenerated(true);
     } catch (error) {
       console.error('Error creating the story:', error);
     }
   };
-
+  const handleCopyScreenplay = useCallback(() => {
+    if (screenplay) {
+      navigator.clipboard.writeText(screenplay.join('\n\n'));
+      // You can show a notification or feedback to the user if needed
+    }
+  }, [screenplay]);
   const handleCopyParagraph = useCallback((paragraph) => {
     if (paragraph) {
       navigator.clipboard.writeText(paragraph);
       // You can show a notification or feedback to the user if needed
     }
   }, []);
+  const handleShowScreenplay = async (index) => {
+    try {
+      const selectedStory = story[index];
+      console.log('Selected Story:', selectedStory);
+  
+      
+      const response = await axios.post('http://127.0.0.1:5000/generate_screenplay', {
+        story: selectedStory,
+      });
+  
+      const generatedScreenplay = response.data.screenplay;
+      console.log('Generated Screenplay:', generatedScreenplay);
+  
+     
+      setScreenplay(generatedScreenplay);
+      const screenplayResponse =  await axios.post('http://localhost:5002/api/story/save_screenplay', {
+      screenplay: generatedScreenplay,
+    });
+    console.log('Story saved in MongoDB:', screenplayResponse.data.message);
+    } catch (error) {
+      console.error('Error generating screenplay:', error);
+    }
+  };
+
   const menu = (
     <Menu onClick={handleGenreSelect}>
       {genres.map((genre) => (
@@ -78,7 +120,9 @@ const CreateSection = () => {
 
   return (
     <Row style={{ padding: '0 10%', alignItems: 'center', justifyContent: 'space-between', margin: '0 auto' }}>
-      <Col span={11} style={{ marginRight: '10px' }} className='boxshadow'>
+    {!isStoryGenerated ?
+     ( 
+       <Col span={11} style={{ marginRight: '10px' }} className='boxshadow'>
         <div style={{ textAlign: 'center' }}>
           <h1>Create New Story</h1>
           <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 60px' }}>
@@ -111,6 +155,15 @@ const CreateSection = () => {
                 </Space>
               </div>
             ))}
+            <div style={{padding:'0 40px'}}>
+               <Input
+                value={characterRelation}
+                onChange={(e) => setCharacterRelation(e.target.value)}
+                placeholder="Enter character relation/synopsis"
+                style={{ marginBottom: 8 }}
+              />
+            </div>
+            
           </div>
           <Button style={{width:'320px' , marginBottom:'30px'}}  type="primary" onClick={handleCreateStory}>
           Create
@@ -128,16 +181,18 @@ const CreateSection = () => {
           {/* Your content for continue with existing goes here */}
         </div>
       </Col>
-      <Col span={11} style={{ marginRight: '10px' }} className='boxshadow'>
+      ) : null}
+      {/* <Col span={11} style={{ marginRight: '10px' }} className='boxshadow'>
       <div style={{ backgroundColor: '#f5f5f5', padding: '20px', borderRadius: '8px' }}>
         <h1 style={{ textAlign: 'center' }}>Generated Short Story</h1>
         {story && (
           <ol style={{ textAlign: 'initial' }}>
-            {/* Map through the generated story array and render each element as a list item */}
+           
             {story.map((paragraph, index) => (
               <li key={index}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  {paragraph}
+                <div >
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                     {paragraph}
                   <Button
                     icon={<CopyOutlined />}
                     onClick={() => handleCopyParagraph(paragraph)}
@@ -145,15 +200,78 @@ const CreateSection = () => {
                   >
                     Copy Text
                   </Button>
+                  </div>
+                  <Button
+              style={{ marginBottom: '10px' }}
+              type="primary"
+              onClick={() => handleShowScreenplay(story.story)}
+            >
+              Show Screenplay
+            </Button>
+                 
+                </div>
+              </li>
+            ))}
+          </ol>
+          
+        )}
+        
+      </div>
+    </Col> */}
+  {isStoryGenerated ? (
+     <Col span={22} style={{ marginRight: '10px' }} className="boxshadow">
+      <div style={{ backgroundColor: '#f5f5f5', padding: '20px', borderRadius: '8px' }}>
+        <h1 style={{ textAlign: 'center' }}>Generated Short Story</h1>
+        {story && (
+          <ol style={{ textAlign: 'initial' }}>
+            {/* Map through the generated story array and render each element as a list item */}
+            {story.map((paragraph, index) => (
+              <li key={index}>
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    {paragraph}
+                    <Button
+                      icon={<CopyOutlined />}
+                      onClick={() => handleCopyParagraph(paragraph)}
+                      style={{ marginTop: '10px' }}
+                    >
+                      Copy Text
+                    </Button>
+                  </div>
+                  <Button
+                    style={{ marginBottom: '10px' }}
+                    type="primary"
+                    onClick={() => handleShowScreenplay(index)}
+                  >
+                    Show Screenplay
+                  </Button>
                 </div>
               </li>
             ))}
           </ol>
         )}
-        
-      </div>
-    </Col>
-     
+
+
+
+{screenplay && (
+              <Col span={22} style={{ marginRight: '10px', background: '#f5f5f5' }} className="boxshadow">
+                <div style={screenplayStyle}>
+                  <h2>Generated Screenplay</h2>
+                  <pre>{screenplay}</pre>
+                  
+                </div>
+                <Button
+                style={{ marginTop: '10px' }}
+                type="primary"
+                onClick={handleCopyScreenplay}
+              >
+                Copy Entire Screenplay
+              </Button>
+              </Col>
+            )}
+          </div>
+        </Col>
+      ) : null}
     </Row>
   );
 };
